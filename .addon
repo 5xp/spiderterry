@@ -104,7 +104,7 @@
         }
       ]
     },
-    "GameCategory": "None",
+    "GameCategory": "Parkour",
     "Physics": {
       "SubSteps": 4,
       "TimeScale": 1,
@@ -116,6 +116,15 @@
       "VelocityIterations": 8,
       "SoftBodyIterations": 1,
       "SoftBodySubsteps": 1
+    },
+    "ControlModes": {
+      "Keyboard": true,
+      "Gamepad": true
+    },
+    "Compiler": {
+      "RootNamespace": "Sandbox",
+      "DefineConstants": "SANDBOX;ADDON;DEBUG",
+      "NoWarn": "1701;1702;1591;"
     }
   }
 }
