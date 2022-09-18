@@ -41,7 +41,7 @@ namespace Sandbox
 			
 			lean = lean.LerpTo( velocity.Dot( Rotation.Right ) * 0.01f, Time.Delta * 15.0f );
 
-			var appliedRoll = lean * tiltFactor * 2f;
+			var appliedRoll = lean * tiltFactor;
 			appliedRoll += speed * 0.3f;
 
 
