@@ -7,25 +7,14 @@ public partial class WebShooter : Carriable
 	//public override string ViewModelPath => "models/first_person/first_person_arms.vmdl";
 
 	protected PhysicsBody heldBody;
-	protected Vector3 heldPos;
-	protected Rotation heldRot;
-	protected Vector3 holdPos;
-	protected Rotation holdRot;
 	protected float holdDistance;
 	protected float webLength;
 	protected bool grabbing;
-	protected bool usedPull;
 	protected float groundFriction = 4.0f;
 
 	protected virtual float MinTargetDistance => 0.0f;
 	protected virtual float MaxTargetDistance => 5000.0f;
-	protected virtual float LinearFrequency => 20.0f;
-	protected virtual float LinearDampingRatio => 1.0f;
-	protected virtual float AngularFrequency => 20.0f;
-	protected virtual float AngularDampingRatio => 1.0f;
 	protected virtual float TargetDistanceSpeed => 25.0f;
-	protected virtual float RotateSpeed => 0.125f;
-	protected virtual float RotateSnapAt => 45.0f;
 	protected virtual float PullSpeed => 1000.0f;
 
 	public const string GrabbedTag = "grabbed";
@@ -48,13 +37,8 @@ public partial class WebShooter : Carriable
 	{
 		if ( Owner is not Player owner ) return;
 
-		if ( !IsServer ) return;
-
-		Log.Info( "Hello" );
-
 		var eyePos = owner.EyePosition;
 		var eyeDir = owner.EyeRotation.Forward;
-		var eyeRot = Rotation.From( new Angles( 0.0f, owner.EyeRotation.Yaw(), 0.0f ) );
 
 		if ( Input.Pressed( InputButton.PrimaryAttack ) )
 		{
@@ -67,30 +51,10 @@ public partial class WebShooter : Carriable
 
 		}
 
-
-
-		bool grabEnabled = grabbing; //&& Input.Down( InputButton.PrimaryAttack );
+		bool grabEnabled = grabbing && Input.Down( InputButton.PrimaryAttack );
 		bool pullEnabled = grabEnabled && Input.Pressed( InputButton.Jump );
 
-		//if ( GrabbedEntity.IsValid() && wantsToFreeze )
-		//{
-		//	(Owner as AnimatedEntity)?.SetAnimParameter( "b_attack", true );
-		//}
-
 		WebActive = grabEnabled;
-
-		if ( grabEnabled )
-		{
-			//Input.MouseWheel = 0;
-		}
-
-		if ( pullEnabled )
-		{
-			//webLength = 0;
-
-		}
-
-
 
 		if ( IsServer )
 		{
@@ -104,15 +68,13 @@ public partial class WebShooter : Carriable
 
 						if ( pullEnabled )
 						{
-							usedPull = true;
 							GrabEnd();
 						}
 
 					}
 					else
 					{
-						TryStartGrab( eyePos, eyeRot, eyeDir );
-
+						TryStartGrab( eyePos, eyeDir );
 					}
 				}
 				else if ( grabbing )
@@ -126,14 +88,13 @@ public partial class WebShooter : Carriable
 
 	}
 
-	private void TryStartGrab( Vector3 eyePos, Rotation eyeRot, Vector3 eyeDir )
+	private void TryStartGrab( Vector3 eyePos, Vector3 eyeDir )
 	{
 		var tr = Trace.Ray( eyePos, eyePos + eyeDir * MaxTargetDistance )
 			.UseHitboxes()
 			.WithAnyTags( "solid", "debris" )
 			.Ignore( this )
 			.Run();
-
 
 		if ( !tr.Hit || !tr.Entity.IsValid() || tr.StartedSolid ) return;
 
@@ -149,18 +110,12 @@ public partial class WebShooter : Carriable
 		if ( body.BodyType == PhysicsBodyType.Keyframed && rootEnt is not Player )
 			return;
 
-		if ( rootEnt.Tags.Has( GrabbedTag ) )
-			return;
-
-		GrabInit( body, eyePos, tr.EndPosition, eyeRot );
+		GrabInit( body, eyePos, tr.EndPosition );
 
 		GrabbedEntity = rootEnt;
-		GrabbedEntity.Tags.Add( GrabbedTag );
-		GrabbedEntity.Tags.Add( $"{GrabbedTag}{Client.PlayerId}" );
 
 		GrabbedPos = body.Transform.PointToLocal( tr.EndPosition );
 
-		Client?.Pvs.Add( GrabbedEntity );
 	}
 
 	private void UpdateGrab( Vector3 eyePos, bool pulling )
@@ -185,7 +140,7 @@ public partial class WebShooter : Carriable
 		controller.ClearGroundEntity();
 
 		// change speed if pulling in a different direction than velocity
-		if ( pulling && !usedPull && addspeed > 0 )
+		if ( pulling && addspeed > 0 )
 		{
 			owner.Velocity += grabDirection * addspeed;
 		}
@@ -264,7 +219,7 @@ public partial class WebShooter : Carriable
 	{
 	}
 
-	private void GrabInit( PhysicsBody body, Vector3 startPos, Vector3 grabPos, Rotation rot )
+	private void GrabInit( PhysicsBody body, Vector3 startPos, Vector3 grabPos )
 	{
 		if ( !body.IsValid() )
 			return;
@@ -277,60 +232,26 @@ public partial class WebShooter : Carriable
 		holdDistance = holdDistance.Clamp( MinTargetDistance, MaxTargetDistance );
 		webLength = holdDistance - 10f;
 
-		heldRot = rot.Inverse * heldBody.Rotation;
-		heldPos = heldBody.Transform.PointToLocal( grabPos );
-
-		holdPos = heldBody.Position;
-		holdRot = heldBody.Rotation;
-
-		heldBody.Sleeping = false;
-		heldBody.AutoSleep = false;
 		DisableFriction();
 		Sound.FromScreen( "web" );
 	}
 
 	private void GrabEnd()
 	{
-		if ( heldBody.IsValid() )
-		{
-			heldBody.AutoSleep = true;
-		}
-
-		Client?.Pvs.Remove( GrabbedEntity );
-
 		if ( GrabbedEntity.IsValid() )
 		{
-			GrabbedEntity.Tags.Remove( GrabbedTag );
-			GrabbedEntity.Tags.Remove( $"{GrabbedTag}{Client.PlayerId}" );
 			GrabbedEntity = null;
-			Sound.FromScreen( "swish" );
 		}
 
+		Sound.FromScreen( "swish" );
 		heldBody = null;
 		grabbing = false;
-		usedPull = false;
 		EnableFriction();
 	}
 
 	[Event.Physics.PreStep]
 	public void OnPrePhysicsStep()
 	{
-		//if ( !IsServer )
-		//	return;
-
-		//if ( !heldBody.IsValid() )
-		//	return;
-
-		//if ( GrabbedEntity is Player )
-		//	return;
-
-		//var velocity = heldBody.Velocity;
-		//Vector3.SmoothDamp( heldBody.Position, holdPos, ref velocity, 0.075f, Time.Delta );
-		//heldBody.Velocity = velocity;
-
-		//var angularVelocity = heldBody.AngularVelocity;
-		//Rotation.SmoothDamp( heldBody.Rotation, holdRot, ref angularVelocity, 0.075f, Time.Delta );
-		//heldBody.AngularVelocity = angularVelocity;
 	}
 
 	private void MoveTargetDistance( float distance )
@@ -338,16 +259,6 @@ public partial class WebShooter : Carriable
 		holdDistance -= distance;
 		holdDistance = holdDistance.Clamp( MinTargetDistance, MaxTargetDistance );
 		webLength = holdDistance;
-	}
-
-	protected virtual void DoRotate( Rotation eye, Vector3 input )
-	{
-		var localRot = eye;
-		localRot *= Rotation.FromAxis( Vector3.Up, input.x * RotateSpeed );
-		localRot *= Rotation.FromAxis( Vector3.Right, input.y * RotateSpeed );
-		localRot = eye.Inverse * localRot;
-
-		heldRot = localRot * heldRot;
 	}
 
 	public override void BuildInput( InputBuilder owner )
