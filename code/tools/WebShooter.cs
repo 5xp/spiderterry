@@ -231,9 +231,10 @@ public partial class WebShooter : Carriable
 		holdDistance = Vector3.DistanceBetween( startPos, grabPos );
 		holdDistance = holdDistance.Clamp( MinTargetDistance, MaxTargetDistance );
 		webLength = holdDistance - 10f;
-
+		
 		DisableFriction();
-		Sound.FromScreen( "web" );
+		var toTarget = To.Single( Owner?.Client );
+		Sound.FromScreen( toTarget, "web" );
 	}
 
 	private void GrabEnd()
@@ -243,7 +244,8 @@ public partial class WebShooter : Carriable
 			GrabbedEntity = null;
 		}
 
-		Sound.FromScreen( "swish" );
+		var toTarget = To.Single( Owner?.Client );
+		Sound.FromScreen( toTarget, "swish" );
 		heldBody = null;
 		grabbing = false;
 		EnableFriction();
