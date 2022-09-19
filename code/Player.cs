@@ -29,6 +29,13 @@ partial class SandboxPlayer : Player
 	{
 		// Load clothing from client data
 		Clothing.LoadFromClient( cl );
+
+		
+		wind = Sound.FromScreen( To.Single( cl ), "wind" );
+		wind.SetVolume( 0 );
+		
+		clothesWind = Sound.FromScreen( To.Single( cl ), "clotheswind" );
+		clothesWind.SetVolume( 0 );
 	}
 
 	public override void Respawn()
@@ -46,13 +53,6 @@ partial class SandboxPlayer : Player
 		EnableDrawing = true;
 		EnableHideInFirstPerson = true;
 		EnableShadowInFirstPerson = true;
-
-		wind = Sound.FromScreen( "wind" );
-		wind.SetVolume( 0 );
-
-		clothesWind = Sound.FromScreen( "clotheswind" );
-		clothesWind.SetVolume( 0 );
-		
 
 		Clothing.DressEntity( this );
 
@@ -89,6 +89,9 @@ partial class SandboxPlayer : Player
 
 		Inventory.DropActive();
 		Inventory.DeleteContents();
+
+		wind.SetVolume( 0 );
+		clothesWind.SetVolume( 0 );
 	}
 
 	public override void TakeDamage( DamageInfo info )
