@@ -57,7 +57,6 @@ partial class SandboxPlayer : Player
 		Clothing.DressEntity( this );
 
 		Inventory.Add( new WebShooter(), true );
-		//Inventory.Add( new Pistol(), true );
 		CameraMode = new SpiderCamera();
 
 		base.Respawn();
