@@ -17,11 +17,9 @@ public partial class WebShooter : Carriable
 	protected virtual float TargetDistanceSpeed => 25.0f;
 	protected virtual float PullSpeed => 1000.0f;
 
-	public const string GrabbedTag = "grabbed";
-
-	[Net] public bool WebActive { get; set; }
-	[Net] public Entity GrabbedEntity { get; set; }
-	[Net] public Vector3 GrabbedPos { get; set; }
+	[Net, Predicted] public bool WebActive { get; set; }
+	[Net, Predicted] public Entity GrabbedEntity { get; set; }
+	[Net, Predicted] public Vector3 GrabbedPos { get; set; }
 
 	public PhysicsBody HeldBody => heldBody;
 
@@ -56,35 +54,28 @@ public partial class WebShooter : Carriable
 
 		WebActive = grabEnabled;
 
-		if ( IsServer )
+		if ( grabEnabled )
 		{
-			using ( Prediction.Off() )
+			if ( heldBody.IsValid() )
 			{
-				if ( grabEnabled )
-				{
-					if ( heldBody.IsValid() )
-					{
-						UpdateGrab( eyePos, pullEnabled );
+				UpdateGrab( eyePos, pullEnabled );
 
-						if ( pullEnabled )
-						{
-							GrabEnd();
-						}
-
-					}
-					else
-					{
-						TryStartGrab( eyePos, eyeDir );
-					}
-				}
-				else if ( grabbing )
+				if ( pullEnabled )
 				{
 					GrabEnd();
-
 				}
+
+			}
+			else
+			{
+				TryStartGrab( eyePos, eyeDir );
 			}
 		}
+		else if ( grabbing )
+		{
+			GrabEnd();
 
+		}
 
 	}
 
@@ -122,7 +113,8 @@ public partial class WebShooter : Carriable
 	{
 		if ( Owner is not Player owner ) return;
 
-		var controller = owner.GetActiveController() as SpiderController;
+		if ( owner.GetActiveController() is not SpiderController controller ) return;
+
 
 		// adjust web length with mouse wheel
 		if ( Input.MouseWheel != 0 )
@@ -163,15 +155,16 @@ public partial class WebShooter : Carriable
 	{
 		if ( Owner is not Player owner ) return;
 
-		var controller = owner.GetActiveController() as SpiderController;
-
+		if ( owner.GetActiveController() is not SpiderController controller ) return;
+		
 		controller.GroundFriction = 1.0f;
 	}
 
 	private void EnableFriction()
 	{
 		if ( Owner is not Player owner ) return;
-		var controller = owner.GetActiveController() as SpiderController;
+		
+		if ( owner.GetActiveController() is not SpiderController controller ) return;
 
 		controller.GroundFriction = 4.0f;
 	}
