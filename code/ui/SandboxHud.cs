@@ -14,6 +14,7 @@ public partial class SandboxHud : HudEntity<RootPanel>
 		RootPanel.AddChild<ChatBox>();
 		RootPanel.AddChild<VoiceList>();
 		RootPanel.AddChild<VoiceSpeaker>();
+		RootPanel.AddChild<Scoreboard<ScoreboardEntry>>();
 		RootPanel.AddChild<Crosshair2D>();
 	}
 }
