@@ -2,18 +2,18 @@
 {
 	data = 
 	{
-		UI = true
+		UI = false
 		Volume = 0.5
 		VolumeRandom = 0
 		Pitch = 1
 		PitchRandom = 0.05
-		Decibels = 70
+		Decibels = 140
 		Sounds = 
 		[
 			resource:"sounds/web.vsnd",
 		]
 		SelectionMode = "Random"
-		MaximumDistance = 1143.9335
-		MinimumDistance = 57.196674
+		MaximumDistance = 4479.734
+		MinimumDistance = 223.9867
 	}
 }

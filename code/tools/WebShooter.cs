@@ -246,9 +246,7 @@ public partial class WebShooter : Carriable
 		Crosshair2D.grabPos = grabPos;
 		Crosshair2D.grabbing = true;
 
-
-		var toTarget = To.Single( Owner?.Client );
-		Sound.FromScreen( toTarget, "web" );
+		Owner.PlaySound( "web" );
 	}
 
 	private void GrabEnd()
