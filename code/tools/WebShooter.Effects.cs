@@ -4,6 +4,12 @@ public partial class WebShooter
 {
 	Particles WebLine;
 	ModelEntity lastGrabbedEntity;
+	private Sound stretch;
+
+	public WebShooter()
+	{
+		
+	}
 
 	[Event.Frame]
 	public void OnFrame()
@@ -21,6 +27,8 @@ public partial class WebShooter
 		{
 			lastGrabbedEntity = null;
 		}
+
+		stretch.SetVolume( 0 );
 	}
 	
 	protected virtual void UpdateEffects()

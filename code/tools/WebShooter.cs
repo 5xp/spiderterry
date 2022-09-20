@@ -1,5 +1,6 @@
 ﻿using Sandbox;
 using System;
+using static Sandbox.Package;
 
 [Library( "webshooter" )]
 public partial class WebShooter : Carriable
@@ -120,9 +121,8 @@ public partial class WebShooter : Carriable
 		if ( Input.MouseWheel != 0 )
 			MoveTargetDistance( Input.MouseWheel * TargetDistanceSpeed );
 
-		float distance = Vector3.DistanceBetween( eyePos, GrabbedPos );
-
 		Vector3 grabDirection = GrabbedPos - eyePos;
+		float distance = grabDirection.Length;
 		grabDirection = grabDirection.Normal;
 
 		var currentspeed = owner.Velocity.Dot( grabDirection );
@@ -142,6 +142,9 @@ public partial class WebShooter : Carriable
 
 
 		addspeed = 100.0f - currentspeed;
+
+		float volume = addspeed.LerpInverse( 0f, 100f );
+		stretch.SetVolume( volume * 0.3f );
 
 		if ( addspeed <= 0 )
 			return;
@@ -235,10 +238,12 @@ public partial class WebShooter : Carriable
 		if ( GrabbedEntity.IsValid() )
 		{
 			GrabbedEntity = null;
+			
+			var toTarget = To.Single( Owner?.Client );
+			Sound.FromScreen( toTarget, "swish" );
+			
 		}
 
-		var toTarget = To.Single( Owner?.Client );
-		Sound.FromScreen( toTarget, "swish" );
 		heldBody = null;
 		grabbing = false;
 		EnableFriction();
