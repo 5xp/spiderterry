@@ -1,4 +1,5 @@
 ﻿using Sandbox;
+using Sandbox.UI;
 using System;
 using static Sandbox.Package;
 
@@ -12,6 +13,8 @@ public partial class WebShooter : Carriable
 	protected float webLength;
 	protected bool grabbing;
 	protected float groundFriction = 4.0f;
+	private Sound stretch;
+	
 
 	protected virtual float MinTargetDistance => 0.0f;
 	protected virtual float MaxTargetDistance => 5000.0f;
@@ -79,6 +82,8 @@ public partial class WebShooter : Carriable
 		}
 
 	}
+
+	
 
 	private void TryStartGrab( Vector3 eyePos, Vector3 eyeDir )
 	{
@@ -149,7 +154,7 @@ public partial class WebShooter : Carriable
 		addspeed = 100.0f - currentspeed;
 
 		float volume = addspeed.LerpInverse( 0f, 100f );
-		stretch.SetVolume( volume * 0.3f );
+		stretch.SetVolume( volume * 0.2f );
 
 		if ( addspeed <= 0 )
 			return;
@@ -199,6 +204,9 @@ public partial class WebShooter : Carriable
 	{
 		base.ActiveStart( ent );
 
+		stretch = Sound.FromScreen( To.Single( ent ), "ropestretch" );
+		stretch.SetVolume( 0 );
+
 		Activate();
 	}
 
@@ -227,6 +235,7 @@ public partial class WebShooter : Carriable
 
 		GrabEnd();
 
+
 		grabbing = true;
 		heldBody = body;
 		holdDistance = Vector3.DistanceBetween( startPos, grabPos );
@@ -253,6 +262,7 @@ public partial class WebShooter : Carriable
 			Crosshair2D.grabbing = false;
 		}
 
+		stretch.SetVolume( 0 );
 		heldBody = null;
 		grabbing = false;
 		EnableFriction();
@@ -289,4 +299,5 @@ public partial class WebShooter : Carriable
 	{
 		return Owner == null || HeldBody.IsValid();
 	}
+
 }
