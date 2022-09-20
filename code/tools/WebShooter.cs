@@ -135,6 +135,11 @@ public partial class WebShooter : Carriable
 		if ( pulling && addspeed > 0 )
 		{
 			owner.Velocity += grabDirection * addspeed;
+
+			// angle the new velocity a bit upwards
+			Vector3 dir = owner.Velocity.Normal;
+			dir.z += 0.2f;
+			owner.Velocity = dir.Normal * owner.Velocity.Length;
 		}
 
 		if ( distance < webLength * 0.7f )
