@@ -234,6 +234,10 @@ public partial class WebShooter : Carriable
 		webLength = holdDistance - 10f;
 		
 		DisableFriction();
+		Crosshair2D.grabPos = grabPos;
+		Crosshair2D.grabbing = true;
+
+
 		var toTarget = To.Single( Owner?.Client );
 		Sound.FromScreen( toTarget, "web" );
 	}
@@ -246,7 +250,7 @@ public partial class WebShooter : Carriable
 			
 			var toTarget = To.Single( Owner?.Client );
 			Sound.FromScreen( toTarget, "swish" );
-			
+			Crosshair2D.grabbing = false;
 		}
 
 		heldBody = null;

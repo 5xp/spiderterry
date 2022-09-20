@@ -30,10 +30,10 @@ partial class SandboxPlayer : Player
 		// Load clothing from client data
 		Clothing.LoadFromClient( cl );
 
-		
+
 		wind = Sound.FromScreen( To.Single( cl ), "wind" );
 		wind.SetVolume( 0 );
-		
+
 		clothesWind = Sound.FromScreen( To.Single( cl ), "clotheswind" );
 		clothesWind.SetVolume( 0 );
 	}
@@ -184,6 +184,27 @@ partial class SandboxPlayer : Player
 		var speed = Velocity.Length.LerpInverse( 800f, 2000f );
 		wind.SetVolume( speed * 0.8f );
 		clothesWind.SetVolume( speed * 0.5f );
+	}
+
+	public override void FrameSimulate( Client cl )
+	{
+		base.FrameSimulate( cl );
+
+		if ( !IsClient )
+		{
+			return;
+		}
+		
+		var eyePos = EyePosition;
+		var eyeDir = EyeRotation.Forward;
+
+		var tr = Trace.Ray( eyePos, eyePos + eyeDir * 5000.0f )
+			.UseHitboxes()
+			.WithAnyTags( "solid", "debris" )
+			.Ignore( this )
+			.Run();
+
+		Crosshair2D.Current.Update( eyePos, tr );
 	}
 
 	Entity lastWeapon;
