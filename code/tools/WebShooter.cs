@@ -135,7 +135,6 @@ public partial class WebShooter : Carriable
 
 		var addspeed = PullSpeed - currentspeed;
 
-		controller.ClearGroundEntity();
 
 		// change speed if pulling in a different direction than velocity
 		if ( pulling && addspeed > 0 )
@@ -153,6 +152,11 @@ public partial class WebShooter : Carriable
 			}
 		}
 
+		if ( owner.Velocity.z > 0.0f )
+		{
+			owner.GroundEntity = null;
+		}
+
 		if ( distance < webLength * 0.7f )
 			return;
 
@@ -167,19 +171,23 @@ public partial class WebShooter : Carriable
 
 		owner.Velocity += grabDirection * addspeed;
 
+		if ( owner.Velocity.z > 0.0f )
+		{
+			owner.GroundEntity = null;
+		}
 
 	}
 
-	private void DisableFriction()
+	private void ReduceFriction()
 	{
 		if ( Owner is not Player owner ) return;
 
 		if ( owner.GetActiveController() is not SpiderController controller ) return;
 		
-		controller.GroundFriction = 1.0f;
+		controller.GroundFriction = 0.5f;
 	}
 
-	private void EnableFriction()
+	private void RestoreFriction()
 	{
 		if ( Owner is not Player owner ) return;
 		
@@ -248,7 +256,7 @@ public partial class WebShooter : Carriable
 		holdDistance = holdDistance.Clamp( MinTargetDistance, MaxTargetDistance );
 		webLength = holdDistance - 10f;
 		
-		DisableFriction();
+		ReduceFriction();
 		Crosshair2D.grabPos = grabPos;
 		Crosshair2D.grabbing = true;
 
@@ -269,7 +277,7 @@ public partial class WebShooter : Carriable
 		stretch.SetVolume( 0 );
 		heldBody = null;
 		grabbing = false;
-		EnableFriction();
+		RestoreFriction();
 	}
 
 	[Event.Physics.PreStep]
