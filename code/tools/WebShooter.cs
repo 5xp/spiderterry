@@ -158,7 +158,10 @@ public partial class WebShooter : Carriable
 		}
 
 		if ( distance < webLength * 0.7f )
+		{
+			stretch.SetVolume( 0 );
 			return;
+		}
 
 
 		addspeed = 100.0f - currentspeed;
