@@ -119,9 +119,6 @@ public partial class WebShooter : Carriable
 	{
 		if ( Owner is not Player owner ) return;
 
-		if ( owner.GetActiveController() is not SpiderController controller ) return;
-
-
 		// adjust web length with mouse wheel
 		if ( Input.MouseWheel != 0 )
 			MoveTargetDistance( Input.MouseWheel * TargetDistanceSpeed );
