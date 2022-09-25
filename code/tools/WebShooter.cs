@@ -130,6 +130,7 @@ public partial class WebShooter : Carriable
 		float distance = grabDirection.Length;
 		grabDirection = grabDirection.Normal;
 
+		var originalspeed = owner.Velocity.Length;
 		var currentspeed = owner.Velocity.Dot( grabDirection );
 
 		var addspeed = PullSpeed - currentspeed;
@@ -145,6 +146,11 @@ public partial class WebShooter : Carriable
 			Vector3 dir = owner.Velocity.Normal;
 			dir.z += 0.2f;
 			owner.Velocity = dir.Normal * owner.Velocity.Length;
+
+			if ( owner.Velocity.Length > originalspeed && originalspeed > PullSpeed )
+			{
+				owner.Velocity = owner.Velocity.Normal * originalspeed;
+			}
 		}
 
 		if ( distance < webLength * 0.7f )
