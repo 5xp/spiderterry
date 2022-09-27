@@ -33,11 +33,11 @@ public class Speedometer : Panel
 		
 		if ( deltaSpeed > 0.01f )
 		{
-			Label.Style.FontColor = Color.Parse( "#85E3FF" );
+			Label.Style.FontColor = Color.Parse( "#5EC4FF" );
 		}
 		else if ( deltaSpeed < -0.01f )
 		{
-			Label.Style.FontColor = Color.Parse( "#FF9AA2" );
+			Label.Style.FontColor = Color.Parse( "#FF7E75" );
 		}
 		else
 		{
