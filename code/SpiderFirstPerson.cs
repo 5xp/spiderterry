@@ -2,7 +2,7 @@
 
 namespace Sandbox
 {
-	public class SpiderCamera : FirstPersonCamera
+	public class SpiderFirstPerson : FirstPersonCamera
 	{
 		Vector3 lastPos;
 
@@ -10,7 +10,7 @@ namespace Sandbox
 		private float pitch = 0.0f;
 		private float tiltFactor = 0.5f;
 		private float maxSpeedLerp = 600f;
-		
+
 		public override void Update()
 		{
 			var pawn = Local.Pawn;
@@ -29,16 +29,16 @@ namespace Sandbox
 				Position = eyePos;
 			}
 
-			
+
 
 			Rotation = pawn.EyeRotation;
-			
+
 			pitch = pitch.LerpTo( velocity.Dot( Rotation.Up ) * 0.01f, Time.Delta * 15.0f );
 			var appliedPitch = pitch * tiltFactor;
 			appliedPitch += speed * 0.3f;
 
 			Rotation *= Rotation.From( -appliedPitch, 0, 0 );
-			
+
 			lean = lean.LerpTo( velocity.Dot( Rotation.Right ) * 0.01f, Time.Delta * 15.0f );
 
 			var appliedRoll = lean * tiltFactor;
@@ -85,7 +85,7 @@ namespace Sandbox
 					// Undo down pitch while lerping up
 					float undoPitch = MathF.Max( input.AnalogLook.pitch, 0 );
 					input.ViewAngles.pitch -= undoPitch;
-					
+
 					input.ViewAngles.pitch = input.ViewAngles.pitch.LerpTo( 89f, Time.Delta * 10.0f );
 				}
 				else if ( input.ViewAngles.pitch <= -89.0f )
@@ -93,7 +93,7 @@ namespace Sandbox
 					// Undo up pitch while lerping down
 					float undoPitch = MathF.Min( input.AnalogLook.pitch, 0 );
 					input.ViewAngles.pitch -= undoPitch;
-					
+
 					input.ViewAngles.pitch = input.ViewAngles.pitch.LerpTo( -89f, Time.Delta * 10.0f );
 				}
 			}
@@ -104,7 +104,7 @@ namespace Sandbox
 			}
 
 			// If view angles are almost within -90 and 90, mirror the forward strafe so it feels more normal
-			if ( input.ViewAngles.pitch is ( > 90.0f and < 110.0f ) or ( < -90.0f and > -110.0f ) )
+			if ( input.ViewAngles.pitch is (> 90.0f and < 110.0f) or (< -90.0f and > -110.0f) )
 			{
 				input.AnalogMove.x *= -1f;
 			}

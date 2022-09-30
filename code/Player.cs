@@ -57,7 +57,7 @@ partial class SandboxPlayer : Player
 		Clothing.DressEntity( this );
 
 		Inventory.Add( new WebShooter(), true );
-		CameraMode = new SpiderCamera();
+		CameraMode = new SpiderFirstPerson();
 
 		base.Respawn();
 	}
@@ -151,7 +151,7 @@ partial class SandboxPlayer : Player
 		{
 			if ( CameraMode is ThirdPersonCamera )
 			{
-				CameraMode = new SpiderCamera();
+				CameraMode = new SpiderFirstPerson();
 			}
 			else
 			{
