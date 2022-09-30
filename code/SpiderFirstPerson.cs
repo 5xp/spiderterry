@@ -17,8 +17,6 @@ namespace Sandbox
 			if ( pawn == null ) return;
 
 			var eyePos = pawn.EyePosition;
-			var velocity = pawn.Velocity;
-			var speed = pawn.Velocity.Length.LerpInverse( 300f, maxSpeedLerp );
 
 			if ( eyePos.Distance( lastPos ) < 300 ) // TODO: Tweak this, or add a way to invalidate lastpos when teleporting
 			{
@@ -29,9 +27,17 @@ namespace Sandbox
 				Position = eyePos;
 			}
 
-
-
 			Rotation = pawn.EyeRotation;
+
+			CameraEffects( pawn.Velocity );
+
+			Viewer = pawn;
+			lastPos = Position;
+		}
+
+		public void CameraEffects( Vector3 velocity )
+		{
+			var speed = velocity.Length.LerpInverse( 300f, maxSpeedLerp );
 
 			pitch = pitch.LerpTo( velocity.Dot( Rotation.Up ) * 0.01f, Time.Delta * 15.0f );
 			var appliedPitch = pitch * tiltFactor;
@@ -44,11 +50,7 @@ namespace Sandbox
 			var appliedRoll = lean * tiltFactor;
 			appliedRoll += speed * 0.3f;
 
-
 			Rotation *= Rotation.From( 0, 0, appliedRoll );
-
-			Viewer = pawn;
-			lastPos = Position;
 		}
 
 		public override void BuildInput( InputBuilder input )
