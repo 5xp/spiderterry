@@ -50,5 +50,66 @@ namespace Sandbox
 			Viewer = pawn;
 			lastPos = Position;
 		}
+
+		public override void BuildInput( InputBuilder input )
+		{
+			//
+			// If we're using the mouse then
+			// increase pitch sensitivity
+			//
+			if ( !input.UsingController )
+			{
+				input.AnalogLook.pitch *= 1.5f;
+			}
+
+			// Add the view move
+			input.ViewAngles += input.AnalogLook;
+
+			// Normalize pitch to between -180 and 180 degrees
+			input.ViewAngles.pitch = input.ViewAngles.pitch.NormalizeDegrees();
+
+			if ( input.ViewAngles.pitch > 180f )
+			{
+				input.ViewAngles.pitch -= 360f;
+			}
+
+			var pawn = Local.Pawn;
+			if ( pawn == null ) return;
+
+			// Grounded
+			if ( pawn.GroundEntity != null )
+			{
+				// Lerp pitch back to -89 and 89
+				if ( input.ViewAngles.pitch >= 89.0f )
+				{
+					// Undo down pitch while lerping up
+					float undoPitch = MathF.Max( input.AnalogLook.pitch, 0 );
+					input.ViewAngles.pitch -= undoPitch;
+					
+					input.ViewAngles.pitch = input.ViewAngles.pitch.LerpTo( 89f, Time.Delta * 10.0f );
+				}
+				else if ( input.ViewAngles.pitch <= -89.0f )
+				{
+					// Undo up pitch while lerping down
+					float undoPitch = MathF.Min( input.AnalogLook.pitch, 0 );
+					input.ViewAngles.pitch -= undoPitch;
+					
+					input.ViewAngles.pitch = input.ViewAngles.pitch.LerpTo( -89f, Time.Delta * 10.0f );
+				}
+			}
+			else if ( input.ViewAngles.pitch is > 100.0f or < -100.0f )
+			{
+				// Reverse yaw angles when upside down 
+				input.ViewAngles.yaw -= input.AnalogLook.yaw * 2f;
+			}
+
+			// If view angles are almost within -90 and 90, mirror the forward strafe so it feels more normal
+			if ( input.ViewAngles.pitch is ( > 90.0f and < 110.0f ) or ( < -90.0f and > -110.0f ) )
+			{
+				input.AnalogMove.x *= -1f;
+			}
+
+			input.InputDirection = input.AnalogMove;
+		}
 	}
 }
