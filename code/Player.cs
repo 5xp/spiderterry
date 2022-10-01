@@ -149,13 +149,13 @@ partial class SandboxPlayer : Player
 
 		if ( Input.Pressed( InputButton.View ) )
 		{
-			if ( CameraMode is ThirdPersonCamera )
+			if ( CameraMode is SpiderThirdPerson )
 			{
 				CameraMode = new SpiderFirstPerson();
 			}
 			else
 			{
-				CameraMode = new ThirdPersonCamera();
+				CameraMode = new SpiderThirdPerson();
 			}
 		}
 
